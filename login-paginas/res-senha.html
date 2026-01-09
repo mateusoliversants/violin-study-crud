@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de esqueci a senha</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row min-vh-100 justify-content-center align-items-center">
+            <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+                <form id="esqueciForm">
+                    <h1 class="h3 mb-3 fw-normal">Redefinir senha</h1>
+
+                    <div class="form-floating mb-3">
+                        <input type="email mb-3" class="form-control" placeholder="name@example.com" id="email">
+                        <label for="email">Email</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="novaSenha" placeholder="Password" autocomplete="new-password">
+                        <label for="novaSenha">Nova senha</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="confirmSenha" placeholder="Password" autocomplete="new-password">
+                        <label for="confirmSenha">Confirmar senha</label>
+                    </div>
+
+                    <div id = "mensagem" class="mb-3 text-center"></div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 mt-2">Confirmar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/login-js/esqueci.js"></script>
+</body>
+
+</html>
