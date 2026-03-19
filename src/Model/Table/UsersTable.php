@@ -62,18 +62,20 @@ class UsersTable extends Table
         $validator
             ->email('email')
             ->requirePresence('email', 'create')
-            ->notEmptyString('email')
-            ->add('email', 'NotEmail', [
-                'rule' => ['custom', '/@(?!email\.com$).+/i']
+            ->notEmptyString('email', 'O email é obrigatório')
+            ->add('email', 'NotGmail', [
+                'rule' => ['custom', '/@(?!gmail\.com$).+/i'],
+                'message' => '@gmail.com não é permitido'
             ]);
 
         $validator
             ->scalar('password')
-            ->maxLength('password', 255)
+            ->maxLength('password', 255, 'Máximo 255 caracteres')
             ->requirePresence('password', 'create')
-            ->notEmptyString('password')
+            ->notEmptyString('password', 'A senha é obrigatória')
             ->add('password', 'letraNumero', [
-                'rule' => ['custom', '/^(?=.*[A-Za-z])(?=.*\d).+$/']
+                'rule' => ['custom', '/^(?=.*[A-Za-z])(?=.*\d).+$/'],
+                'message' => 'A senha precisa ter ao menos 1 letra e 1 número'
             ]);
 
         return $validator;

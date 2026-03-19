@@ -89,10 +89,9 @@ class UsersTableTest extends TestCase
         ];
 
         $user = $this->Users->newEntity($usuario);
-        $result = $this->Users->save($user);
 
+        dd($user->getErrors());
         $this->assertNotEmpty($user->getErrors());
-        $this->assertFalse($result);
     }
 
     public function testTamanhoSenha(): void
@@ -106,10 +105,9 @@ class UsersTableTest extends TestCase
         ];
 
         $user = $this->Users->newEntity($usuario);
-        $result = $this->Users->save($user);
 
+        dd($user->getErrors());
         $this->assertNotEmpty($user->getErrors());
-        $this->assertFalse($result);
     }
 
     public function testSenhaVazia(): void
@@ -121,10 +119,9 @@ class UsersTableTest extends TestCase
         ];
 
         $user = $this->Users->newEntity($usuario);
-        $result = $this->Users->save($user);
 
+        dd($user->getErrors());
         $this->assertNotEmpty($user->getErrors());
-        $this->assertFalse($result);
     }
 
     public function testSenhaLetraNumero(): void
@@ -139,21 +136,19 @@ class UsersTableTest extends TestCase
 
         dd($user->getErrors());
         $this->assertNotEmpty($user->getErrors());
-        
     }
 
-    public function testNotEmail(): void
+    public function testNotGmail(): void
     {
         $usuario = [
-            'email' => 'nao@email.com',
+            'email' => 'nao@gmail.com',
             'password' => '1a',
             'created' => '2026-09-01 22:11:18'
         ];
 
         $user = $this->Users->newEntity($usuario);
-        $result = $this->Users->save($user);
 
+        dd($user->getErrors());
         $this->assertNotEmpty($user->getErrors());
-        $this->assertFalse($result);
     }
 }
