@@ -89,7 +89,16 @@ class SessoesTable extends Table
 
         $validator
             ->time('end_time')
-            ->allowEmptyTime('end_time');
+            ->allowEmptyTime('end_time')
+            ->add('end_time', 'HoraFinalMenor', [
+                'rule' => function ($value, $context) {
+                    if (strtotime($value) > strtotime($context['data']['start_time'])){
+                        return true;
+                    }
+
+                    return 'Hora final não pode ser menor que a hora inicial';
+                }
+            ]);
 
         $validator
             ->scalar('conteudo')

@@ -73,7 +73,7 @@ class SessoesTableTest extends TestCase
         $this->assertNotFalse($result);
     }
 
-    public function testUserExiste(): void
+    public function testUserExisteSessao(): void
     {
         $sessaoCriada = [
             'user_id' => 70,
@@ -91,5 +91,25 @@ class SessoesTableTest extends TestCase
         $result = $this->Sessoes->save($sessao);
 
         $this->assertFalse($result);
+    }
+
+    public function testHoraFinalMenor(): void
+    {
+        $sessaoCriada = [
+            'user_id' => 1,
+            'apostila_id' => 1,
+            'name' => 'Sessão hora final menor',
+            'created' => '2026-02-17 10:42:34',
+            'sessao_date' => '2026-02-17',
+            'start_time' => '13:00:00',
+            'end_time' => '11:30:00',
+            'conteudo' => '123',
+            'objetivo' => 'abc',
+        ];
+
+        $sessao = $this->Sessoes->newEntity($sessaoCriada);
+
+        dd($sessao->getErrors());
+        $this->assertNotEmpty($sessao->getErrors());
     }
 }
