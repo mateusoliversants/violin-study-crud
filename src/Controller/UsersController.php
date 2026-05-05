@@ -121,8 +121,14 @@ class UsersController extends AppController
             return $this->redirect($redirect);
         }
 
-        if($this->request->is('post') && !$result->isValid()) {
-            $this->Flash->error('Email ou senha inválidos');
+        if ($this->request->is('post')) {
+            $message = 'Informe o usuário e a senha!';
+            $errors = $result->getErrors();
+            if (isset($errors['GuiaDoUsuario'])) {
+                $message = $errors['GuiaDoUsuario'][0];
+            }
+
+            $this->Flash->set($message, ['plugin' => 'MetronicV4', 'key' => 'danger', 'element' => 'message']);
         }
     }
 

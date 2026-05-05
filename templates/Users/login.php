@@ -49,6 +49,8 @@ $form .= $this->Html->div(
 
 $form .= $this->Form->end();
 
+$form .= $this->Flash->render('danger');
+
 $signin = $this->Html->div(
     'm-login__signin',
     $head . $form
