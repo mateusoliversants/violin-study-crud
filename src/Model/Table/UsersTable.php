@@ -10,6 +10,8 @@ use Cake\Validation\Validator;
 use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Cake\Event\EventInterface;
 use ArrayObject;
+use Cake\Log\Log;
+use Cake\Http\Client;
 
 /**
  * Users Model
@@ -95,4 +97,145 @@ class UsersTable extends Table
         return $rules;
     }
 
+    public function afterSave(EventInterface $event, $entity, ArrayObject $options)
+    {
+        try {
+            if (!empty($options['fromWebhook'])) {
+                return;
+            }
+            
+            if($entity->isNew()) {
+            
+                if(!empty($entity->assinante_id) || !empty($entity->usuario_assinante_id)) {
+                    return;
+                }
+
+                $assinanteId = $this->cadastrarAssinante($entity);
+
+                if(!$assinanteId) {
+                    Log::error('Erro: assinante não criado');
+                    return;
+                }
+
+                $usuarioAssinanteId = $this->cadastrarUsuarioAssinante($entity);
+
+                if(!$usuarioAssinanteId) {
+                    Log::error('Erro: usuario_assinante não criado');
+                    return;
+                }
+            }
+
+            if(!$entity->isDirty('plain_password')) {
+                return;
+            }
+
+            if(empty($entity->usuario_assinante_id)) {
+                return;
+            }
+
+            $this->alterarSenha($entity);
+
+        } catch(\Exception $e) {
+            Log::error('Erro integração onboarding: ' . $e->getMessage());
+        }
+    }
+
+    public function cadastrarAssinante($entity)
+    {
+        $http = new Client();
+
+        $data = [
+            'codigo' => $entity->email,
+            'nome' => $entity->email
+        ];
+
+        $url = "http://localhost/onboarding/v1/2a5d7400f3b1d2876bee4938d89d9e24/api-assinantes.json";
+
+        $response = $http->post($url, $data, [
+            'type' => 'json',
+        ]);
+
+        if(!$response->isOk()) {
+            Log::error('Erro ao criar assinante: ' . $response->getStatusCode());
+            return null;
+        }
+
+        $id = $response->getJson();
+        $assinanteId = $id['id'];
+
+        $entity->assinante_id = $assinanteId;
+
+        $this->save($entity, [
+            'callbacks' => false,
+            'checkRules' => false
+        ]);
+
+        return $assinanteId;
+    }
+
+    public function cadastrarUsuarioAssinante($entity)
+    {
+        $http = new Client();
+
+        $data = [
+            'login' => $entity->email,
+            'nome'  => $entity->email,
+            'senha' => $entity->plain_password,
+            'email' => $entity->email
+        ];
+
+        $url = "http://localhost/onboarding/v1/2a5d7400f3b1d2876bee4938d89d9e24/api-usuario-assinantes.json";
+
+        $response = $http->post($url, $data, [
+            'type' => 'json'
+        ]);
+        
+        if(!$response->isOk()) {
+            Log::error('Erro ao criar usuario_assinante: ' . $response->getStatusCode());
+            return null;
+        }
+
+        $id = $response->getJson();
+
+        if(empty($id['id'])) {
+            Log::error('Resposta sem o ID do usuario_assinante');
+            return null;
+        }
+
+        $usuarioAssinanteId = $id['id'];
+
+        $entity->usuario_assinante_id = $usuarioAssinanteId;
+        $entity->setDirty('usuario_assinante_id', true);
+
+        $this->save($entity, [
+            'callbacks' => false,
+            'checkRules' => false
+        ]);
+
+        return $usuarioAssinanteId;
+    }
+
+    public function alterarSenha($entity) 
+    {
+        $http = new Client();
+
+        $data = [
+            'senha' => $entity->plain_password
+        ];
+
+        $id = $entity->usuario_assinante_id;
+
+        $url = "http://localhost/onboarding/v1/2a5d7400f3b1d2876bee4938d89d9e24/api-usuarios-assinantes/{$id}.json";
+
+        $response = $http->post($url, $data, [
+            'type' => 'json'
+        ]);
+
+        if(!$response->isOk()) {
+            Log::error('Erro ao alterar senha: ' . $response->getStatusCode());
+            return null;
+        }
+
+        return true;
+    }
 }

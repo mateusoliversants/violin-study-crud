@@ -18,6 +18,7 @@ namespace App\Controller;
 
 use Cake\Controller\Controller;
 use Cake\Event\EventInterface;
+use MetronicV4\View\Helper\MetronicHelper;
 
 /**
  * Application Controller
@@ -46,6 +47,15 @@ class AppController extends Controller
         $this->loadComponent('Flash');
         $this->loadComponent('Authentication.Authentication');
         $this->loadComponent('Authorization.Authorization');
+        $this->viewBuilder()->setLayout('MetronicV4.demo3');
+        $this->viewBuilder()->addHelpers([
+            'Html',
+            'Url',
+            'Form',
+            'Flash',
+            'MetronicV4.Metronic' => ['update' => '#content'],
+            'Time',
+        ]);
 
         /*
          * Enable the following component for recommended CakePHP form protection settings.

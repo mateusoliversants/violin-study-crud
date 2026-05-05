@@ -107,6 +107,8 @@ class UsersController extends AppController
     {
         $this->Authorization->skipAuthorization();
         $this->request->allowMethod(['get', 'post']);
+        
+        $this->viewBuilder()->setLayout('MetronicV4.login');
 
         $result = $this->Authentication->getResult();
 
@@ -136,10 +138,18 @@ class UsersController extends AppController
     {
         $this->Authorization->skipAuthorization();
 
+        $this->viewBuilder()
+            ->setLayout('MetronicV4.login')
+            ->setTemplate('register');
+
         $user = $this->Users->newEmptyEntity();
 
         if ($this->request->is('post')) {
-            $user = $this->Users->patchEntity($user, $this->request->getData());
+            $data = $this->request->getData();
+
+            $user = $this->Users->patchEntity($user, $data);
+
+            $user->plain_password = $data['password'];
 
             if ($this->Users->save($user)) {
                 $this->Flash->success('Usuário cadastrado!');
@@ -155,6 +165,10 @@ class UsersController extends AppController
     public function forgotPassword()
     {
         $this->Authorization->skipAuthorization();
+
+        $this->viewBuilder()
+            ->setLayout('MetronicV4.login')
+            ->setTemplate('forgot_password');
 
         if($this->request->is('post')) {
             $email = $this->request->getData('email');

@@ -1,52 +1,173 @@
 <?php
-/**
- * @var \App\View\AppView $this
- * @var iterable<\App\Model\Entity\Apostila> $apostilas
- */
-?>
-<div class="apostilas index content">
-    <?= $this->Html->link(__('Criar Apostila'), ['action' => 'add'], ['class' => 'button float-right']) ?>
-    <h3><?= __('Apostilas') ?></h3>
-    <div class="table-responsive">
-        <table>
-            <thead>
-                <tr>
-                    <th><?= $this->Paginator->sort('id') ?></th>
-                    <th><?= $this->Paginator->sort('nome') ?></th>
-                    <th><?= $this->Paginator->sort('dificuldade') ?></th>
-                    <th><?= $this->Paginator->sort('arquivo') ?></th>
-                    <th class="actions"><?= __('Ações') ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($apostilas as $apostila): ?>
-                <tr>
-                    <td><?= $this->Number->format($apostila->id) ?></td>
-                    <td><?= h($apostila->name) ?></td>
-                    <td><?= h($apostila->nivel) ?></td>
-                    <td><?= $this->Html->link(
-                        $apostila->arquivo,
-                        '/uploads/apostilas/' . $apostila->arquivo,
-                        ['target' => '_blank']
-                    ) ?></td>
-                    <td class="actions">
-                        <?= $this->Html->link(__('Visualizar'), ['action' => 'view', $apostila->id]) ?>
-                        <?= $this->Html->link(__('Editar'), ['action' => 'edit', $apostila->id]) ?>
-                        <?= $this->Form->postLink(__('Deletar'), ['action' => 'delete', $apostila->id], ['confirm' => __('Deletar {0}?', $apostila->name)]) ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-    <div class="paginator">
-        <ul class="pagination">
-            <?= $this->Paginator->first('<< ' . __('first')) ?>
-            <?= $this->Paginator->prev('< ' . __('previous')) ?>
-            <?= $this->Paginator->numbers() ?>
-            <?= $this->Paginator->next(__('next') . ' >') ?>
-            <?= $this->Paginator->last(__('last') . ' >>') ?>
-        </ul>
-        <p><?= $this->Paginator->counter(__('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')) ?></p>
-    </div>
-</div>
+$this->assign('title', 'Apostilas');
+
+$breadcrumb = $this->Html->div(
+    'm-subheader',
+
+    $this->Html->div(
+        'd-flex align-items-center',
+
+        $this->Html->div(
+            'mr-auto',
+
+            $this->Html->tag('h3', 'Apostilas', [
+                'class' => 'm-subheader__title m-subheader__title--separator'
+            ]) .
+
+            $this->Html->tag(
+                'ul',
+                
+                $this->Html->tag(
+                    'li',
+
+                    $this->Html->link(
+                        $this->Html->tag('span', 'Sessões', [
+                            'class' => 'm-nav__link-text'
+                        ]),
+                        ['controller' => 'Sessoes', 'action' => 'index'],
+                        [
+                            'class' => 'm-nav__link',
+                            'escape' => false
+                        ]
+                    ),
+
+                    ['class' => 'm-nav__item']
+                ) .
+
+                $this->Html->tag(
+                    'li',
+                    '-', ['class' => 'm-nav__separator']
+                ) .
+
+                $this->Html->tag(
+                    'li',
+
+                    $this->Html->tag(
+                        'span',
+
+                        $this->Html->tag('span', 'Apostilas', [
+                            'class' => 'm-nav__link-text'
+                        ]),
+
+                        ['class' => 'm-nav__link']
+                    ),
+
+                    ['class' => 'm-nav__item m-nav__item--active']
+                ) .
+
+                $this->Html->tag(
+                    'li',
+                    '-', ['class' => 'm-nav__separator']
+                ) .
+
+                $this->Html->tag(
+                    'li',
+
+                    $this->Html->link(
+                        $this->Html->tag('span', 'Logout', [
+                            'class' => 'm-nav__link-text'
+                        ]),
+                        ['controller' => 'Users', 'action' => 'logout'],
+                        [
+                            'class' => 'm-nav__link',
+                            'escape' => false
+                        ]
+                    ),
+
+                    ['class' => 'm-nav__item']
+                ),
+
+                ['class' => 'm-subheader__breadcrumbs m-nav m-nav--inline']
+            )
+        )
+    )
+);
+
+$portletHead = $this->Html->div(
+    'm-portlet__head',
+
+    $this->Html->div(
+        'm-portlet__head-caption',
+        $this->Html->tag('h3', 'Lista de Apostilas', [
+            'class' => 'm-portlet__head-text'
+        ])
+    ) .
+
+    $this->Html->div(
+        'm-portlet__head-tools',
+
+        $this->Metronic->addButton('add')
+    )
+);
+
+$thead = $this->Html->tag(
+    'thead',
+
+    $this->Html->tag(
+        'tr',
+        $this->Html->tag('th', 'Nome') .
+        $this->Html->tag('th', 'Apostila') .
+        $this->Html->tag('th', 'Nível') .
+        $this->Html->tag('th', 'Ações')
+    )
+);
+
+$tbody = '';
+
+foreach ($apostilas as $apostila) {
+
+    $actions =
+        $this->Html->link('Visualizar', ['action' => 'view', $apostila->id], [
+            'class' => 'btn btn-info m-btn m-btn--custom'
+        ]) . ' ' .
+
+        $this->Html->link('Editar', ['action' => 'edit', $apostila->id], [
+            'class' => 'btn btn-warning m-btn m-btn--custom'
+        ]). ' ' .
+
+        $this->Metronic->deleteButton([
+            'post-url' => $this->Url->build(['action' => 'delete', $apostila->id])
+        ]);
+
+    $tbody .= $this->Html->tag(
+        'tr',
+
+        $this->Html->tag('td', h($apostila->name)) .
+        $this->Html->tag(
+            'td',
+
+             $this->Html->link(
+                $apostila->arquivo,
+                '/uploads/apostilas/' . $apostila->arquivo,
+                ['target' => '_blank']
+            )
+        ) .
+        $this->Html->tag('td', h($apostila->nivel)) .
+        $this->Html->tag('td', $actions)
+    );
+}
+
+$tbody = $this->Html->tag('tbody', $tbody);
+
+$table = $this->Html->tag(
+    'table',
+    $thead . $tbody,
+    ['class' => 'table m-table m-table--head-bg-brand']
+);
+
+$body = $this->Html->div(
+    'm-portlet__body',
+    $this->Html->div('table-responsive', $table)
+);
+
+$portlet = $this->Html->div(
+    'm-portlet',
+    $portletHead . $body
+);
+
+$content = $this->Html->div(
+    'm-content',
+    $portlet
+);
+
+echo $breadcrumb . $content;

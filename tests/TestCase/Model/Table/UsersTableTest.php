@@ -5,6 +5,9 @@ namespace App\Test\TestCase\Model\Table;
 
 use App\Model\Table\UsersTable;
 use Cake\TestSuite\TestCase;
+use Cake\Http\Client;
+use Cake\Http\Client\Response;
+use Cake\TestSuite\HttpClientTrait;
 
 /**
  * App\Model\Table\UsersTable Test Case
@@ -90,7 +93,6 @@ class UsersTableTest extends TestCase
 
         $user = $this->Users->newEntity($usuario);
 
-        dd($user->getErrors());
         $this->assertNotEmpty($user->getErrors());
     }
 
@@ -106,7 +108,6 @@ class UsersTableTest extends TestCase
 
         $user = $this->Users->newEntity($usuario);
 
-        dd($user->getErrors());
         $this->assertNotEmpty($user->getErrors());
     }
 
@@ -120,7 +121,6 @@ class UsersTableTest extends TestCase
 
         $user = $this->Users->newEntity($usuario);
 
-        dd($user->getErrors());
         $this->assertNotEmpty($user->getErrors());
     }
 
@@ -134,7 +134,6 @@ class UsersTableTest extends TestCase
 
         $user = $this->Users->newEntity($usuario);
 
-        dd($user->getErrors());
         $this->assertNotEmpty($user->getErrors());
     }
 
@@ -148,7 +147,61 @@ class UsersTableTest extends TestCase
 
         $user = $this->Users->newEntity($usuario);
 
-        dd($user->getErrors());
         $this->assertNotEmpty($user->getErrors());
+    }
+
+    use HttpClientTrait;
+
+    public function testCadastrarAssinante()
+    {
+        $this->mockClientPost(
+            'http://localhost/onboarding/v1/2a5d7400f3b1d2876bee4938d89d9e24/api-assinantes.json',
+            $this->newClientResponse(200, [], json_encode(['id' => 12345]))
+        );
+
+        $entity = $this->Users->newEntity([
+            'email' => 'test@email.com'
+        ]);
+
+        $result = $this->Users->cadastrarAssinante($entity);
+
+        $this->assertEquals(12345, $result);
+        $this->assertEquals(12345, $entity->assinante_id);
+    }
+
+    public function testCadastrarUsuarioAssinante()
+    {
+        $this->mockClientPost(
+            'http://localhost/onboarding/v1/2a5d7400f3b1d2876bee4938d89d9e24/api-usuario-assinantes.json',
+            $this->newClientResponse(200, [], json_encode(['id' => 999]))
+        );
+
+        $entity = $this->Users->newEntity([
+            'email' => 'test@email.com',
+            'password' => '12345A'
+        ]);
+
+        $result = $this->Users->cadastrarUsuarioAssinante($entity);
+
+        $this->assertEquals(999, $result);
+        $this->assertEquals(999, $entity->usuario_assinante_id);
+    }
+
+    public function testAlterarSenha()
+    {
+        $this->mockClientPost(
+            'http://localhost/onboarding/v1/2a5d7400f3b1d2876bee4938d89d9e24/api-usuarios-assinantes/99.json',
+            $this->newClientResponse(200, [], json_encode(['ok' => true]))
+        );
+
+        $entity = $this->Users->newEntity([
+            'email' => 'test@email.com',
+            'plain_password' => '12Ab',
+            'usuario_assinante_id' => '99'
+        ]);
+
+        $result = $this->Users->alterarSenha($entity);
+
+        $this->assertTrue($result);
     }
 }

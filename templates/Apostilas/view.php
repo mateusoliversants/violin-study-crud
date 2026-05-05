@@ -1,77 +1,155 @@
 <?php
-/**
- * @var \App\View\AppView $this
- * @var \App\Model\Entity\Apostila $apostila
- */
-?>
-<div class="row">
-    <aside class="column">
-        <div class="side-nav">
-            <h4 class="heading"><?= __('Ações') ?></h4>
-            <?= $this->Html->link(__('Editar Apostila'), ['action' => 'edit', $apostila->id], ['class' => 'side-nav-item']) ?>
-            <?= $this->Form->postLink(__('Deletar Apostila'), ['action' => 'delete', $apostila->id], ['confirm' => __('Are you sure you want to delete # {0}?', $apostila->id), 'class' => 'side-nav-item']) ?>
-            <?= $this->Html->link(__('Lista de Apostilas'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
-            <?= $this->Html->link(__('Nova Apostila'), ['action' => 'add'], ['class' => 'side-nav-item']) ?>
-        </div>
-    </aside>
-    <div class="column-responsive column-80">
-        <div class="apostilas view content">
-            <h3><?= h($apostila->name) ?></h3>
-            <table>
-                <tr>
-                    <th><?= __('Nome da Apostila') ?></th>
-                    <td><?= h($apostila->name) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Nivel') ?></th>
-                    <td><?= h($apostila->nivel) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Arquivo') ?></th>
-                    <td><?= $this->Html->link(
-                        $apostila->arquivo,
-                        '/uploads/apostilas/' . $apostila->arquivo,
-                        ['target' => '_blank']
-                    ) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Criado em') ?></th>
-                    <td><?= h($apostila->created) ?></td>
-                </tr>
-            </table>
-            <div class="related">
-                <h4><?= __('Sessões Relacionadas') ?></h4>
-                <?php if (!empty($apostila->sessoes)) : ?>
-                <div class="table-responsive">
-                    <table>
-                        <tr>
-                            <th><?= __('Id') ?></th>
-                            <th><?= __('Apostila Id') ?></th>
-                            <th><?= __('Nome') ?></th>
-                            <th><?= __('Data') ?></th>
-                            <th><?= __('Hora Inicial') ?></th>
-                            <th><?= __('Hora Final') ?></th>
-                            <th class="actions"><?= __('Ações') ?></th>
-                        </tr>
-                        <?php foreach ($apostila->sessoes as $sessoes) : ?>
-                        <tr>
-                            <td><?= h($sessoes->id) ?></td>
-                            <td><?= h($sessoes->apostila_id) ?></td>
-                            <td><?= h($sessoes->name) ?></td>
-                            <td><?= h($sessoes->sessao_date) ?></td>
-                            <td><?= h($sessoes->start_time) ?></td>
-                            <td><?= h($sessoes->end_time) ?></td>
-                            <td class="actions">
-                                <?= $this->Html->link(__('Visualizar'), ['controller' => 'Sessoes', 'action' => 'view', $sessoes->id]) ?>
-                                <?= $this->Html->link(__('Editar'), ['controller' => 'Sessoes', 'action' => 'edit', $sessoes->id]) ?>
-                                <?= $this->Form->postLink(__('Deletar'), ['controller' => 'Sessoes', 'action' => 'delete', $sessoes->id], ['confirm' => __('Are you sure you want to delete # {0}?', $sessoes->id)]) ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </table>
-                </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-</div>
+$this->assign('title', 'Visualizar Apostila');
+
+$portletHead = $this->Html->div(
+    'm-portlet__head d-block d-md-flex',
+
+    $this->Html->div(
+        'm-portlet__head-caption',
+
+        $this->Html->tag('h3', 'Visualizar Apostila', [
+            'class' => 'm-portlet__head-text'
+        ])
+    ) .
+
+    $this->Html->div(
+        'm-portlet__head-tools mt-2 mt-md-0',
+
+        $this->Html->div(
+            'm-portlet__head-tools-wrapper',
+
+            $this->Html->link(
+                'Editar',
+                ['action' => 'edit', $apostila->id],
+                ['class' => 'btn btn-warning m-btn btn-sm m-btn--custom mb-2']
+            ) . ' ' .
+
+            $this->Form->postLink(
+                '',
+                ['action' => 'delete', $apostila->id],
+                [
+                    'class' => 'btn btn-danger m-btn btn-sm m-btn--custom flaticon-delete-1 mb-2',
+                    'confirm' => 'Tem certeza?'
+                ]
+            ) . ' ' .
+
+            $this->Html->link(
+                'Voltar',
+                ['action' => 'index'],
+                ['class' => 'btn btn-secondary m-btn btn-sm m-btn--custom mb-2']
+            )
+        )
+    )
+);
+
+$table = '';
+
+$table .= $this->Html->tag(
+    'tr',
+    $this->Html->tag('th', 'Nome da Apostila') .
+    $this->Html->tag('td', h($apostila->name))
+);
+
+$table .= $this->Html->tag(
+    'tr',
+    $this->Html->tag('th', 'Nível') .
+    $this->Html->tag('td', h($apostila->nivel))
+);
+
+$table .= $this->Html->tag(
+    'tr',
+    $this->Html->tag('th', 'Arquivo') .
+    $this->Html->tag(
+        'td',
+        $apostila->arquivo
+            ? $this->Html->link(
+                $apostila->arquivo,
+                '/uploads/apostilas/' . $apostila->arquivo,
+                ['target' => '_blank']
+            )
+            : 'Nenhum arquivo'
+    )
+);
+
+$table .= $this->Html->tag(
+    'tr',
+    $this->Html->tag('th', 'Criado em') .
+    $this->Html->tag('td', h($this->Time->format($apostila->created, 'dd/MM/yyyy')))
+);
+
+$table = $this->Html->tag(
+    'table',
+    $table,
+    ['class' => 'table m-table m-table--head-bg-brand']
+);
+
+$body = $this->Html->div(
+    'm-portlet__body',
+    $table
+);
+
+
+$sessoesTable = '';
+
+if (!empty($apostila->sessoes)) {
+
+    $thead = $this->Html->tag(
+        'thead',
+        $this->Html->tag(
+            'tr',
+            $this->Html->tag('th', 'Nome') .
+            $this->Html->tag('th', 'Data') .
+            $this->Html->tag('th', 'Ações')
+        )
+    );
+
+    $tbody = '';
+
+    foreach ($apostila->sessoes as $sesso) {
+
+        $actions =
+            $this->Html->link('Ver', ['controller' => 'Sessoes', 'action' => 'view', $sesso->id], [
+                'class' => 'btn btn-info m-btn btn-sm m-btn--custom'
+            ]) . ' ' .
+
+            $this->Html->link('Editar', ['controller' => 'Sessoes', 'action' => 'edit', $sesso->id], [
+                'class' => 'btn btn-warning m-btn btn-sm m-btn--custom'
+            ]);
+
+        $tbody .= $this->Html->tag(
+            'tr',
+            $this->Html->tag('td', h($sesso->name)) .
+            $this->Html->tag('td', $this->Time->format($sesso->sessao_date, 'dd/MM/yyyy')) .
+            $this->Html->tag('td', $actions)
+        );
+    }
+
+    $tbody = $this->Html->tag('tbody', $tbody);
+
+    $sessoesTable = $this->Html->div(
+        'm-portlet__body',
+
+        $this->Html->tag('h4', 'Sessões Relacionadas') .
+
+        $this->Html->div(
+            'table-responsive',
+            $this->Html->tag(
+                'table',
+                $thead . $tbody,
+                ['class' => 'table m-table m-table--head-bg-brand']
+            )
+        )
+    );
+}
+
+$portlet = $this->Html->div(
+    'm-portlet',
+    $portletHead . $body . $sessoesTable
+);
+
+$content = $this->Html->div(
+    'm-content',
+    $portlet
+);
+
+echo $content;

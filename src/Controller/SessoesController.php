@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Authorization\Exception\ForbiddenException;
+use Cake\I18n\FrozenDate;
 
 /**
  * Sessoes Controller
@@ -21,6 +22,8 @@ class SessoesController extends AppController
     public function index()
     {
         $this->Authorization->authorize($this->Sessoes);
+
+        $this->viewBuilder()->setLayout('MetronicV4.demo5');
 
         $userId = $this->request->getAttribute('identity')->getIdentifier();
 
@@ -63,7 +66,17 @@ class SessoesController extends AppController
         $this->Authorization->authorize($sesso);
 
         if ($this->request->is('post')) {
-            $sesso = $this->Sessoes->patchEntity($sesso, $this->request->getData());
+
+            $data = $this->request->getData();
+
+            if (!empty($data['sessao_date'])) {
+                $data['sessao_date'] = FrozenDate::createFromFormat(
+                    'd/m/Y',
+                    $data['sessao_date']
+                );
+            }
+
+            $sesso = $this->Sessoes->patchEntity($sesso, $data);
 
             $sesso->user_id = $this->request->getAttribute('identity')->getIdentifier();
 
@@ -95,10 +108,24 @@ class SessoesController extends AppController
     {
         $sesso = $this->Sessoes->get($id);
 
+        if (!empty($sesso->sessao_date)) {
+            $sesso->sessao_date = $sesso->sessao_date->format('d/m/Y');
+        }
+
         $this->Authorization->authorize($sesso);
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $sesso = $this->Sessoes->patchEntity($sesso, $this->request->getData());
+
+            $data = $this->request->getData();
+
+            if (!empty($data['sessao_date'])) {
+                $data['sessao_date'] = FrozenDate::createFromFormat(
+                    'd/m/Y',
+                    $data['sessao_date']
+                );
+            }
+
+            $sesso = $this->Sessoes->patchEntity($sesso, $data);
 
             if ($this->Sessoes->save($sesso)) {
                 $this->Flash->success(__('Sessão atualizada com sucesso!'));
@@ -127,6 +154,7 @@ class SessoesController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
+
         $sesso = $this->Sessoes->get($id);
 
         $this->Authorization->authorize($sesso);

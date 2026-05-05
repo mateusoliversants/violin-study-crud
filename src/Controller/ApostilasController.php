@@ -19,6 +19,9 @@ class ApostilasController extends AppController
     public function index()
     {
         $this->Authorization->skipAuthorization();
+
+        $this->viewBuilder()->setLayout('MetronicV4.demo5');
+        
         $userId = $this->request->getAttribute('identity')->getIdentifier();
 
         $query = $this->Apostilas->find()
@@ -63,28 +66,48 @@ class ApostilasController extends AppController
 
             $apostila->user_id = $this->request->getAttribute('identity')->getIdentifier();
 
-            $arquivo = $this->request->getData('arquivo');
+            $arquivo = $this->request->getSession()->read('Upload.apostila');
 
-            if ($arquivo && $arquivo->getError() === 0) {
-
-                $nomeArquivo = time() . "_" . $arquivo->getClientFilename();
-
-                $destino = WWW_ROOT . 'uploads' . DS . 'apostilas' . DS . $nomeArquivo;
-
-                $arquivo->moveTo($destino);
-
-                $apostila->arquivo = $nomeArquivo;
+            if (!empty($arquivo)) {
+                $apostila->arquivo = $arquivo;
             }
 
             if ($this->Apostilas->save($apostila)) {
+
+                $this->request->getSession()->delete('Upload.apostila');
+
                 $this->Flash->success(__('Apostila salva com sucesso!'));
 
                 return $this->redirect(['action' => 'index']);
             }
+
             $this->Flash->error(__('Erro ao salvar apostila.'));
         }
 
         $this->set(compact('apostila'));
+    }
+
+    public function upload()
+    {
+        $this->request->allowMethod(['post']);
+        $this->autoRender = false;
+
+        $file = $this->request->getData('file');
+
+        if (!$file || $file->getError() !== 0) {
+            throw new \Exception('Erro no upload');
+        }
+
+        $nomeArquivo = uniqid() . '_' . $file->getClientFilename();
+
+        $destino = WWW_ROOT . 'uploads' . DS . 'apostilas' . DS . $nomeArquivo;
+
+        $file->moveTo($destino);
+
+        $this->request->getSession()->write('Upload.apostila', $nomeArquivo);
+
+        return $this->response->withType('application/json')
+            ->withStringBody(json_encode(['status' => 'ok']));
     }
 
     /**
@@ -94,11 +117,9 @@ class ApostilasController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit($id)
     {
-        $apostila = $this->Apostilas->get($id, [
-            'contain' => [],
-        ]);
+        $apostila = $this->Apostilas->get($id);
 
         $this->Authorization->authorize($apostila);
 
@@ -106,16 +127,23 @@ class ApostilasController extends AppController
 
             $apostila = $this->Apostilas->patchEntity($apostila, $this->request->getData());
 
-            if ($this->Apostilas->save($apostila)) {
+            $arquivo = $this->request->getSession()->read('Upload.apostila');
 
-                $this->Flash->success(__('Apostila atualizada!'));
+            if (!empty($arquivo)) {
+                $apostila->arquivo = $arquivo;
+
+                $this->request->getSession()->delete('Upload.apostila');
+            }
+
+            if ($this->Apostilas->save($apostila)) {
+                $this->Flash->success(__('Apostila atualizada com sucesso!'));
 
                 return $this->redirect(['action' => 'index']);
             }
 
             $this->Flash->error(__('Erro ao atualizar apostila.'));
         }
-        
+
         $this->set(compact('apostila'));
     }
 

@@ -77,7 +77,7 @@ class SessoesTable extends Table
             ->scalar('name')
             ->maxLength('name', 255)
             ->requirePresence('name', 'create')
-            ->notEmptyString('name');
+            ->notEmptyString('name', 'O nome da sessão é obrigatório');
 
         $validator
             ->date('sessao_date')
@@ -141,6 +141,10 @@ class SessoesTable extends Table
                 ->first();
 
             if (!$ultimaSessao) {
+                return true;
+            }
+
+            if($entity->sessao_date > $ultimaSessao->sessao_date) {
                 return true;
             }
 

@@ -1,64 +1,134 @@
 <?php
-/**
- * @var \App\View\AppView $this
- * @var \App\Model\Entity\Sesso $sesso
- */
-?>
-<div class="row">
-    <aside class="column">
-        <div class="side-nav">
-            <h4 class="heading"><?= __('Ações') ?></h4>
-            <?= $this->Html->link(__('Editar Sessão'), ['action' => 'edit', $sesso->id], ['class' => 'side-nav-item']) ?>
-            <?= $this->Form->postLink(__('Deletar Sessão'), ['action' => 'delete', $sesso->id], ['confirm' => __('Are you sure you want to delete # {0}?', $sesso->id), 'class' => 'side-nav-item']) ?>
-            <?= $this->Html->link(__('Lista de Sessões'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
-            <?= $this->Html->link(__('Nova Sessão'), ['action' => 'add'], ['class' => 'side-nav-item']) ?>
-        </div>
-    </aside>
-    <div class="column-responsive column-80">
-        <div class="sessoes view content">
-            <h3><?= h($sesso->name) ?></h3>
-            <table>
-                <tr>
-                    <th><?= __('Nome da Sessão') ?></th>
-                    <td><?= h($sesso->name) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Apostila') ?></th>
-                    <td><?= $sesso->has('apostila') ? $this->Html->link($sesso->apostila->name, ['controller' => 'Apostilas', 'action' => 'view', $sesso->apostila->id]) : '' ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Criado em') ?></th>
-                    <td><?= h($sesso->created) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Data') ?></th>
-                    <td><?= h($sesso->sessao_date) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Hora Inicial') ?></th>
-                    <td><?= h($sesso->start_time) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Hora Final') ?></th>
-                    <td><?= h($sesso->end_time) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Duração') ?></th>
-                    <td><?= $sesso->duracao ?></td>
-                </tr>
-            </table>
-            <div class="text">
-                <strong><?= __('Conteúdo') ?></strong>
-                <blockquote>
-                    <?= $this->Text->autoParagraph(h($sesso->conteudo)); ?>
-                </blockquote>
-            </div>
-            <div class="text">
-                <strong><?= __('Objetivo') ?></strong>
-                <blockquote>
-                    <?= $this->Text->autoParagraph(h($sesso->objetivo)); ?>
-                </blockquote>
-            </div>
-        </div>
-    </div>
-</div>
+$this->assign('title', 'Visualizar Sessão');
+
+$portletHead = $this->Html->div(
+    'm-portlet__head d-block d-md-flex',
+
+    $this->Html->div(
+        'm-portlet__head-caption',
+
+        $this->Html->tag('h3', 'Visualizar Sessão', [
+            'class' => 'm-portlet__head-text'
+        ])
+    ) .
+
+    $this->Html->div(
+        'm-portlet__head-tools mt-2 mt-md-0',
+
+        $this->Html->div(
+            'm-portlet__head-tools-wrapper',
+
+            $this->Html->link(
+                'Editar',
+                ['action' => 'edit', $sesso->id],
+                ['class' => 'btn btn-warning m-btn btn-sm m-btn--custom mb-2']
+            ) . ' ' .
+
+            $this->Form->postLink(
+                '',
+                ['action' => 'delete', $sesso->id], 
+                [
+                    'class' => 'btn btn-danger m-btn btn-sm m-btn--custom flaticon-delete-1 mb-2',
+                    'confirm' => 'Tem certeza?'
+                ]
+            ) . ' ' .
+
+            $this->Html->link(
+                'Voltar',
+                ['action' => 'index'],
+                ['class' => 'btn btn-secondary m-btn btn-sm m-btn--custom mb-2']
+            )
+        )
+    )
+);
+
+$table = '';
+
+$table .= $this->Html->tag(
+    'tr',
+    $this->Html->tag('th', 'Nome da Sessão') .
+    $this->Html->tag('td', h($sesso->name))
+);
+
+$table .= $this->Html->tag(
+    'tr',
+    $this->Html->tag('th', 'Apostila') .
+    $this->Html->tag(
+        'td',
+        $sesso->has('apostila')
+            ? $this->Html->link(
+                $sesso->apostila->name,
+                ['controller' => 'Apostilas', 'action' => 'view', $sesso->apostila->id]
+            )
+            : ''
+    )
+);
+
+$table .= $this->Html->tag(
+    'tr',
+    $this->Html->tag('th', 'Data') .
+    $this->Html->tag('td', h($this->Time->format($sesso->sessao_date, 'dd/MM/yyyy')))
+);
+
+$table .= $this->Html->tag(
+    'tr',
+    $this->Html->tag('th', 'Hora Inicial') .
+    $this->Html->tag('td', h($sesso->start_time))
+);
+
+$table .= $this->Html->tag(
+    'tr',
+    $this->Html->tag('th', 'Hora Final') .
+    $this->Html->tag('td', h($sesso->end_time))
+);
+
+$table .= $this->Html->tag(
+    'tr',
+    $this->Html->tag('th', 'Duração') .
+    $this->Html->tag('td', h($sesso->duracao))
+);
+
+$table .= $this->Html->tag(
+    'tr',
+    $this->Html->tag('th', 'Criado em') .
+    $this->Html->tag('td', h($this->Time->format($sesso->created, 'dd/MM/yyyy')))
+);
+
+$table = $this->Html->tag(
+    'table',
+    $table,
+    ['class' => 'table m-table m-table--head-bg-brand']
+);
+
+$conteudo = $this->Html->div(
+    'm-portlet__body',
+
+    $this->Html->tag('h5', 'Conteúdo') .
+    $this->Html->tag(
+        'p',
+        h($sesso->conteudo)
+    ) .
+
+    $this->Html->tag('h5', 'Objetivo') .
+    $this->Html->tag(
+        'p',
+        h($sesso->objetivo)
+    )
+);
+
+$body = $this->Html->div(
+    'm-portlet__body',
+    $table
+) . $conteudo;
+
+$portlet = $this->Html->div(
+    'm-portlet',
+    $portletHead . $body
+);
+
+$content = $this->Html->div(
+    'm-content',
+    $portlet
+);
+
+echo $content;

@@ -1,35 +1,103 @@
 <?php
-/**
- * @var \App\View\AppView $this
- * @var \App\Model\Entity\Sesso $sesso
- * @var \Cake\Collection\CollectionInterface|string[] $users
- * @var \Cake\Collection\CollectionInterface|string[] $apostilas
- */
-?>
-<div class="row">
-    <aside class="column">
-        <div class="side-nav">
-            <h4 class="heading"><?= __('Ações') ?></h4>
-            <?= $this->Html->link(__('Lista de Sessões'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
-        </div>
-    </aside>
-    <div class="column-responsive column-80">
-        <div class="sessoes form content">
-            <?= $this->Form->create($sesso) ?>
-            <fieldset>
-                <legend><?= __('Nova Sessão') ?></legend>
-                <?php
-                    echo $this->Form->control('name', ['label' => 'Nome da Sessão']);
-                    echo $this->Form->control('apostila_id', ['options' => $apostilas, 'empty' => true]);
-                    echo $this->Form->control('sessao_date', ['label' => 'Data'] , ['empty' => true]);
-                    echo $this->Form->control('start_time', ['label' => 'Hora Inicial'], ['empty' => true]);
-                    echo $this->Form->control('end_time', ['label' => 'Hora Final'], ['empty' => true]);
-                    echo $this->Form->control('conteudo', ['label' => 'Conteúdo']);
-                    echo $this->Form->control('objetivo', ['label' => 'Objetivo']);
-                ?>
-            </fieldset>
-            <?= $this->Form->button(__('Confirmar')) ?>
-            <?= $this->Form->end() ?>
-        </div>
-    </div>
-</div>
+$this->assign('title', 'Nova Sessão');
+
+$portletHead = $this->Html->div(
+    'm-portlet__head',
+
+    $this->Html->div(
+        'm-portlet__head-caption',
+
+        $this->Html->tag('h3', 'Nova Sessão', [
+            'class' => 'm-portlet__head-text'
+        ])
+    )
+);
+
+$form = $this->Metronic->formCreate($sesso, [
+    'class' => 'm-form m-form--fit m-form--label-align-right'
+]);
+
+$form .= $this->Metronic->input('name', [
+    'label' => 'Nome da Sessão',
+    'class' => 'form-control m-input',
+]);
+
+$form .= $this->Metronic->input('apostila_id', [
+    'label' => 'Apostila',
+    'options' => $apostilas,
+    'empty' => 'Selecione...',
+    'class' => 'form-control m-select2'
+]);
+
+$form .= $this->Metronic->input('sessao_date', [
+    'label' => 'Data',
+    'type' => 'text',
+    'class' => 'form-control m-input w-100 datepicker',
+    'placeholder' => 'Selecione a data',
+    'data-provide' => 'datepicker',
+    'data-date-autoclose' => 1,
+    'data-date-language' => 'pt-BR',
+    'data-date-format' => "dd/mm/yyyy",
+    'data-date-today-highlight' => 1
+]);
+
+$form .= $this->Metronic->input('start_time', [
+    'label' => 'Hora Inicial',
+    'type' => 'text',
+    'class' => 'form-control m-input',
+    'data-inputmask' => "'alias': 'hh:mm'"
+]);
+
+$form .= $this->Metronic->input('end_time', [
+    'label' => 'Hora Final',
+    'type' => 'text',
+    'class' => 'form-control m-input',
+    'data-inputmask' => "'alias': 'hh:mm'"
+]);
+
+$form .= $this->Metronic->input('conteudo', [
+    'label' => 'Conteúdo',
+    'class' => 'form-control m-input',
+    'type' => 'textarea',
+    'escape' => false
+]);
+
+$form .= $this->Metronic->input('objetivo', [
+    'label' => 'Objetivo',
+    'class' => 'form-control m-input',
+    'type' => 'textarea',
+    'escape' => false
+]);
+
+$form .= $this->Html->div(
+    'm-form__actions',
+
+    $this->Metronic->link('Salvar', [
+        'class' => 'btn btn-primary m-btn m-btn--custom',
+        'post-url' => $this->Url->build('/sessoes/add')
+    ]) . ' ' .
+
+    $this->Metronic->link('Cancelar', [
+        'class' => 'btn btn-secondary m-btn m-btn--custom',
+        'post-url' => $this->Url->build('/sessoes/index')
+    ])
+);
+
+$form .= $this->Form->end();
+
+$body = $this->Html->div(
+    'm-portlet__body',
+    $form
+);
+
+$portlet = $this->Html->div(
+    'm-portlet',
+    $portletHead . $body
+);
+
+$content = $this->Html->div(
+    'm-content',
+    $portlet
+);
+
+echo $content;

@@ -59,6 +59,7 @@ class Application extends BaseApplication
 
         $this->addPlugin('Authentication');
         $this->addPlugin('Authorization');
+        $this->addPlugin('MetronicV4');
 
         if (PHP_SAPI === 'cli') {
             $this->bootstrapCli();
@@ -74,7 +75,7 @@ class Application extends BaseApplication
          * Debug Kit should not be installed on a production system
          */
         if (Configure::read('debug')) {
-            $this->addPlugin('DebugKit');
+            //$this->addPlugin('DebugKit');
         }
 
         // Load more plugins here
@@ -106,19 +107,27 @@ class Application extends BaseApplication
             // `new RoutingMiddleware($this, '_cake_routes_')`
             ->add(new RoutingMiddleware($this))
 
-            ->add(new AuthenticationMiddleware($this))
-            ->add(new AuthorizationMiddleware($this))
-
             // Parse various types of encoded request bodies so that they are
             // available as array through $request->getData()
             // https://book.cakephp.org/4/en/controllers/middleware.html#body-parser-middleware
             ->add(new BodyParserMiddleware())
 
+            ->add(new AuthenticationMiddleware($this))
+            ->add(new AuthorizationMiddleware($this))
+
             // Cross Site Request Forgery (CSRF) Protection Middleware
             // https://book.cakephp.org/4/en/security/csrf.html#cross-site-request-forgery-csrf-middleware
-            ->add(new CsrfProtectionMiddleware([
-                'httponly' => true,
-            ]));
+            ->add((function () {
+                $csrf = new CsrfProtectionMiddleware([
+                    'httponly' => true,
+                ]);
+
+                $csrf->skipCheckCallback(function ($request) {
+                    return $request->getParam('controller') === 'Webhooks';
+                });
+
+                return $csrf;
+            })());
 
         return $middlewareQueue;
     }
@@ -132,6 +141,10 @@ class Application extends BaseApplication
                 'username' => 'email',
                 'password' => 'password',
             ],
+            'resolver' => [
+                'className' => 'Authentication.Orm',
+                'userModel' => 'Users',
+            ],
         ]);
 
         $service->loadAuthenticator('Authentication.Session');
@@ -141,7 +154,7 @@ class Application extends BaseApplication
                 'username' => 'email',
                 'password' => 'password',
             ],
-            'loginUrl' => '/users/login',
+            'loginUrl' => '/violin-cake/users/login',
         ]);
 
         return $service;

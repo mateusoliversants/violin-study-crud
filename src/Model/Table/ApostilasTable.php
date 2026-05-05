@@ -73,7 +73,7 @@ class ApostilasTable extends Table
             ->scalar('name')
             ->maxLength('name', 255)
             ->requirePresence('name', 'create')
-            ->notEmptyString('name');
+            ->notEmptyString('name', 'O nome da apostila é obrigatório');
 
         $validator
             ->scalar('nivel')
@@ -86,7 +86,7 @@ class ApostilasTable extends Table
             ->scalar('arquivo')
             ->maxLength('arquivo', 255)
             ->requirePresence('arquivo', 'create')
-            ->notEmptyString('arquivo');
+            ->notEmptyString('arquivo', 'Faça upload de um arquivo PDF');
 
         return $validator;
     }

@@ -31,16 +31,18 @@ class CreateUsers extends AbstractMigration
             'limit' => 255,
             'null' => false,
         ]);
+
         $table->addColumn('password', 'string', [
             'limit' => 255,
             'null' => false,
         ]);
+
         $table->addColumn('created', 'datetime', [
             'default' => 'CURRENT_TIMESTAMP',
         ]);
 
         $table->addIndex(['email'], ['unique' => true]);
-
+        
         $table->create();
     }
 }
